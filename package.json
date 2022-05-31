@@ -1,5 +1,5 @@
 {
-    "name": "example-app",
+    "name": "template-app-node",
     "version": "1.0.0",
     "main": "entry.js",
     "scripts": {
