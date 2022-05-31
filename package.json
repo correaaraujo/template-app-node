@@ -1,0 +1,28 @@
+{
+    "name": "example-app",
+    "version": "1.0.0",
+    "main": "entry.js",
+    "scripts": {
+        "build": "rimraf ./dist && tsc -p ./tsconfig.json && npm run copy:swagger",
+        "dev": "ts-node-dev --exit-child ./src/entry.ts",
+        "start": "node ./dist/entry.js",
+        "prod": "npm run build && npm run start",
+        "copy:swagger": "cpx 'swagger.json' './dist'",
+        "swagger-autogen": "node swagger.js"
+    },
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "@prisma/client": "^3.14.0",
+        "@types/express": "^4.17.13",
+        "docker-compose": "^0.23.17",
+        "dotenv": "^16.0.1",
+        "express": "^4.18.1",
+        "morgan": "^1.10.0",
+        "rimraf": "3.0.2",
+        "swagger-autogen": "^2.21.2",
+        "swagger-ui-express": "^4.4.0",
+        "ts-node-dev": "^2.0.0",
+        "winston": "^3.7.2"
+    }
+}
