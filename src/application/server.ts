@@ -3,23 +3,24 @@ import HealthCheckController from "./controllers/HealthcheckController";
 import swaggerAutogen from "swagger-autogen";
 import swaggerUi from "swagger-ui-express";
 import "dotenv/config";
-import * as swaggerDoc from "../../swagger.json";
 import winston from "winston";
 import morgan from "morgan";
+import * as swaggerDoc from "../../swagger.json"
+import ExampleController from "./controllers/ExampleController";
 
 export default class Server {
     public app: express.Application;
+    public static logger: winston.Logger;
     constructor() {
         this.app = express();
-        this.setupSwagger();
         this.setupApplicationLogger();
         this.setupErrorHandlerLogger();
-        this.setupRoutes()
+        this.setupRoutes();
     }
 
 
     setupApplicationLogger = () => {
-        const logger = winston.createLogger({
+        Server.logger = winston.createLogger({
             transports: [
                 new winston.transports.Console({
                     level: 'debug',
@@ -27,18 +28,20 @@ export default class Server {
                     format: winston.format.combine(
                         winston.format.timestamp({ format: 'HH:mm:ss:ms' }),
                         winston.format.colorize(),
+                        winston.format.prettyPrint(),
                         winston.format.printf(
-                            (info) => `${info.timestamp} ${info.level}: ${info.message}`,
+                            (info) => `${info.timestamp} ${info.level}: ${JSON.stringify(info.message, null, 4)}`,
                         ),
                         //  winston.format.simple(),
                     ),
                 }),
             ],
-            exitOnError: false,
+            exitOnError: false
+
         });
 
         if (process.env.NODE_ENV === "dev") {
-            logger.add(
+            Server.logger.add(
                 new winston.transports.File({
                     level: 'info',
                     filename: './logs/all-logs.log',
@@ -58,7 +61,7 @@ export default class Server {
                     maxFiles: 5,
                 }));
         }
-        logger.info("logging started");
+        Server.logger.info("logging started");
 
         this.app.use(morgan(function (tokens, req, res) {
             const msg = [
@@ -68,7 +71,7 @@ export default class Server {
                 tokens.res(req, res, 'content-length'), '-',
                 tokens['response-time'](req, res), 'ms',
             ].join(' ');
-            logger.http(msg);
+            Server.logger.http(msg);
             return null;
             // return msg;
         })
@@ -81,29 +84,9 @@ export default class Server {
     }
 
     setupRoutes = () => {
+        this.app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc))
         this.app.use("/api/v1/healthcheck", new HealthCheckController().router)
-    }
-
-    setupSwagger = () => {
-        let doc = {
-            info: {
-                title: 'Exemplo de App',
-                description: 'Description',
-            },
-            host: `localhost:${process.env.PORT}`,
-            schemes: ['http'],
-        };
-
-        let outputFile = '../../swagger.json';
-        let endpointsFiles = ["src/application/controllers/HealthcheckController.ts", "src/application/server.ts"];
-
-        swaggerAutogen()(outputFile, endpointsFiles, doc);
-
-        this.app.use(
-            "/docs",
-            swaggerUi.serve,
-            swaggerUi.setup(swaggerDoc)
-        );
+        this.app.use("/api/v1/examples", new ExampleController().router)
     }
 
     errorHandler = (err, req, res, next) => {
@@ -115,7 +98,7 @@ export default class Server {
     }
 
     logErrors = (err, req, res, next) => {
-        console.error(err.stack)
+        Server.logger.error(err.stack)
         next(err)
     }
 
