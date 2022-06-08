@@ -1,10 +1,10 @@
 import 'reflect-metadata'
-import './shared/container'
+import './shared/container/RegisterDependencyInjections'
 import { Server as HttpServer } from 'node:http'
 import { container } from 'tsyringe'
 
 import Server from '@application/server'
-import Logger from '@infra/Logger'
+import Logger from '@infra/Logger/Logger'
 
 const port = process.env.PORT
 const logger = container.resolve(Logger)

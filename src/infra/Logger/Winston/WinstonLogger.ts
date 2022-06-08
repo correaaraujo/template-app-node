@@ -1,5 +1,5 @@
 import winston from 'winston'
-import ILogger from '../protocols'
+import ILogger from '../ILogger'
 
 class WinstonLogger implements ILogger {
   private logger: winston.Logger

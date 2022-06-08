@@ -1,7 +1,7 @@
-import { inject, injectable } from 'tsyringe'
-import ILogger from './protocols'
+import { inject, singleton } from 'tsyringe'
+import ILogger from './ILogger'
 
-@injectable()
+@singleton()
 class Logger implements ILogger {
   /**
    *
