@@ -1,16 +1,16 @@
-import { Express, Router } from "express";
+import { Router } from 'express'
 
 export default class HealthCheckController {
-    public router: Router
-    constructor() {
-        this.router = Router();
-        this.init()
-    }
+  public router: Router
+  constructor () {
+    this.router = Router()
+    this.init()
+  }
 
-    init = () => {
-        this.router.get("/", this.healthcheck);
-    }
+  init = (): void => {
+    this.router.get('/', this.healthcheck)
+  }
 
-    healthcheck = (req, res, next) =>
-        res.status(200).send();
+  healthcheck = (req, res, next): void =>
+    res.status(200).send('ok')
 }
