@@ -1,5 +1,5 @@
 import { container } from 'tsyringe'
 
-import WinstonLogger from '@infra/Logger/Winston/WinstonLogger'
+import Logger from '@infra/Logger/Logger'
 
-container.registerSingleton('Logger', WinstonLogger)
+container.registerSingleton('Logger', Logger)

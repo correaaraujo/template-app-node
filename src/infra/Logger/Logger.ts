@@ -1,59 +1,74 @@
-import { inject, singleton } from 'tsyringe'
+import winston from 'winston'
 import ILogger from './ILogger'
 
-@singleton()
-class Logger implements ILogger {
-  /**
-   *
-   * @param _logger - Dependency Injection with default state
-   */
-  public constructor (
-    @inject('Logger')
-    private readonly _logger: ILogger
-  ) {}
-
-  /**
-   *
-   * @param message - The message string to be logged
-   */
-  debug (message: string): void {
-    this._logger.debug(message)
+export default class Logger implements ILogger {
+  private logger: winston.Logger
+  constructor() {
+    this._configure()
   }
 
-  /**
-   *
-   * @param message - The message string to be logged
-   */
-  error (message: string): void {
-    this._logger.error(message)
+  private _configure(): void {
+    this.logger = winston.createLogger({
+      transports: [
+        new winston.transports.Console({
+          level: 'debug',
+          handleExceptions: true,
+          format: winston.format.combine(
+            winston.format.timestamp({ format: 'HH:mm:ss:ms' }),
+            winston.format.colorize(),
+            winston.format.printf(
+              (info: winston.Logform.TransformableInfo) =>
+                `${String(info.timestamp)} ${info.level}: ${info.message}`
+            )
+            //  winston.format.simple(),
+          )
+        })
+      ],
+      exitOnError: false
+    })
+
+    if (process.env.NODE_ENV === 'dev') {
+      this.logger.add(
+        new winston.transports.File({
+          level: 'info',
+          filename: './logs/all-logs.log',
+          handleExceptions: true,
+          format: winston.format.combine(
+            winston.format.timestamp({
+              format: 'YYYY-MM-DD HH:mm:ss'
+            }),
+            winston.format.errors({ stack: true }),
+            winston.format.printf(
+              (info: winston.Logform.TransformableInfo) =>
+                `${String(info.timestamp)} ${info.level}: ${info.message}`
+            )
+            // winston.format.splat(),
+            // winston.format.json()
+          ),
+          maxsize: 5242880, // 5MB
+          maxFiles: 5
+        }))
+    }
+    this.logger.info('logging started')
   }
 
-  /**
-   *
-   * @param message - The message string to be logged
-   */
-  info (message: string): void {
-    this._logger.info(message)
+  debug(message: any): void {
+    this.logger.debug(message)
   }
 
-  /**
-   *
-   * @param message - The message string to be logged
-   */
-  warn (message: string): void {
-    this._logger.warn(message)
+  error(message: any): void {
+    this.logger.error(message)
   }
 
-  /**
-   *
-   * @param message - The message string to be logged
-   */
-  http (message: string): void {
-    this._logger.http(message)
+  info(message: any): void {
+    this.logger.info(message)
+  }
+
+  warn(message: any): void {
+    this.logger.warn(message)
+  }
+
+  http(message: any): void {
+    this.logger.http(message)
   }
 }
-
-/**
- * [Singleton]
- */
-export default Logger
