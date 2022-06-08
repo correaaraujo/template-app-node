@@ -1,94 +1,43 @@
 import express from 'express'
-import HealthCheckController from './controllers/HealthcheckController'
-import swaggerAutogen from 'swagger-autogen'
+import { Server as HttpServer } from 'node:http'
 import swaggerUi from 'swagger-ui-express'
 import 'dotenv/config'
+import swaggerAutogen from 'swagger-autogen'
+
+import HealthCheckController from './controllers/HealthcheckController'
 import * as swaggerDoc from '../../swagger.json'
-import winston from 'winston'
-import morgan from 'morgan'
-import ExitStatus from '../enum/ExitStatus'
-import { Server as HttpServer } from 'node:http'
+import ExitStatus from '@shared/enum/ExitStatus'
+import HttpLogger from '@infra/HttpLogger/morgan'
+import Logger from '@infra/Logger'
+import { container } from 'tsyringe'
+
+const logger = container.resolve(Logger)
 
 export default class Server {
   public app: express.Application
   constructor () {
     this.app = express()
     this.setupSwagger()
-    this.setupApplicationLogger()
+    this.setupHttpLogger()
     this.setupErrorHandlerLogger()
     this.setupRoutes()
-    this._configureUnhandledOperations()
+    this.setupUnhandledOperations()
   }
 
-  setupApplicationLogger = (): void => {
-    const logger = winston.createLogger({
-      transports: [
-        new winston.transports.Console({
-          level: 'debug',
-          handleExceptions: true,
-          format: winston.format.combine(
-            winston.format.timestamp({ format: 'HH:mm:ss:ms' }),
-            winston.format.colorize(),
-            winston.format.printf(
-              (info: winston.Logform.TransformableInfo) =>
-                `${String(info.timestamp)} ${info.level}: ${info.message}`
-            )
-            //  winston.format.simple(),
-          )
-        })
-      ],
-      exitOnError: false
-    })
-
-    if (process.env.NODE_ENV === 'dev') {
-      logger.add(
-        new winston.transports.File({
-          level: 'info',
-          filename: './logs/all-logs.log',
-          handleExceptions: true,
-          format: winston.format.combine(
-            winston.format.timestamp({
-              format: 'YYYY-MM-DD HH:mm:ss'
-            }),
-            winston.format.errors({ stack: true }),
-            winston.format.printf(
-              (info: winston.Logform.TransformableInfo) =>
-                                `${String(info.timestamp)} ${info.level}: ${info.message}`
-            )
-            // winston.format.splat(),
-            // winston.format.json()
-          ),
-          maxsize: 5242880, // 5MB
-          maxFiles: 5
-        }))
-    }
-    logger.info('logging started')
-
-    this.app.use(morgan(function (tokens, req, res) {
-      const msg = [
-        tokens.method(req, res),
-        tokens.url(req, res),
-        tokens.status(req, res),
-        tokens.res(req, res, 'content-length'), '-',
-        tokens['response-time'](req, res), 'ms'
-      ].join(' ')
-      logger.http(msg)
-      return null
-      // return msg;
-    })
-    )
+  private readonly setupHttpLogger = (): void => {
+    this.app.use(HttpLogger)
   }
 
-  setupErrorHandlerLogger = (): void => {
+  private readonly setupErrorHandlerLogger = (): void => {
     this.app.use(this.logErrors)
     this.app.use(this.errorHandler)
   }
 
-  setupRoutes = (): void => {
+  private readonly setupRoutes = (): void => {
     this.app.use('/api/v1/healthcheck', new HealthCheckController().router)
   }
 
-  setupSwagger = (): void => {
+  private readonly setupSwagger = (): void => {
     const doc = {
       info: {
         title: 'Exemplo de App',
@@ -113,7 +62,7 @@ export default class Server {
     )
   }
 
-  errorHandler = (err, req, res, next): void => {
+  private readonly errorHandler = (err, req, res, next): void => {
     if (res.headersSent) {
       return next(err)
     }
@@ -121,7 +70,7 @@ export default class Server {
     res.render('error', { error: err })
   }
 
-  logErrors = (err, req, res, next): void => {
+  private readonly logErrors = (err, req, res, next): void => {
     console.error(err.stack)
     next(err)
   }
@@ -129,39 +78,36 @@ export default class Server {
   static bootstrap = (): Server => new Server()
 
   /**
-     * Handles unhandledRejection and uncaughtException events.
-     */
-  private readonly _configureUnhandledOperations = (): void => {
+   * Handles unhandledRejection and uncaughtException events.
+   */
+  private readonly setupUnhandledOperations = (): void => {
     process.on('unhandledRejection', (reason, promise) => {
-      // TODO: Add logger configurations here
-      console.error(`App exiting due to an unhandled promise: ${String(promise)} and reason ${String(reason)}`)
+      logger.error(`App exiting due to an unhandled promise: ${String(promise)} and reason ${String(reason)}`)
       throw reason
     })
     process.on('uncaughtException', (error) => {
-      // TODO: Add logger configurations here
-      console.error(`App exiting due to an uncaught error: ${String(error)}`)
+      logger.error(`App exiting due to an uncaught error: ${String(error)}`)
       process.exit(ExitStatus.FAILURE)
     })
   }
 
   /**
-     * Configures a gracefull shutdown whenever the server crash
-     * @param server - The server instance.
-     */
-  static readonly configureGracefulShutdown = (server: HttpServer): void => {
+   * Configures a gracefull shutdown whenever the server crash
+   * @param server - The server instance.
+   */
+  static readonly setupGracefulShutdown = (server: HttpServer): void => {
     const exitSignals: NodeJS.Signals[] = ['SIGINT', 'SIGTERM', 'SIGQUIT']
     exitSignals.forEach((signal: string) => {
       process.on(signal, () => {
-        // TODO: Add logger configurations here
-        // TODO: Close DB connection
+        logger.info(`Closing server connections due an ${signal} command...`)
+        // TODO: Close DB and other connections
         server.close((serverError) => {
           if (serverError) {
-            // TODO: Add logger configurations here
-            console.error('An unexpected error ocurred while trying to shut down...')
-            console.error(String(serverError))
+            logger.error('An unexpected error ocurred while trying to shut down...')
+            logger.error(String(serverError))
             process.exit(ExitStatus.FAILURE)
           } else {
-            // TODO: Add logger configurations here
+            logger.info('Server connections closed successfully!!!')
             process.exit(ExitStatus.SUCCESS)
           }
         })

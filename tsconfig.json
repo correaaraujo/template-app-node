@@ -9,7 +9,24 @@
         "outDir": "./dist",
         "rootDir": ".",
         "sourceRoot": "./src",
-        "sourceMap": true
+        "sourceMap": true,
+        "baseUrl": ".",
+        "paths": {
+            "@application/*": [
+                "./src/application/*"
+            ],
+            "@domain/*": [
+                "./src/domain/*"
+            ],
+            "@infra/*": [
+                "./src/infra/*"
+            ],
+            "@shared/*": [
+                "./src/shared/*"
+            ],
+        },
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
     },
     "include": [
         "**/*.ts"

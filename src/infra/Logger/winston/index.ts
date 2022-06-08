@@ -67,6 +67,10 @@ class WinstonLogger implements ILogger {
   warn (message: string): void {
     this.logger.warn(message)
   }
+
+  http (message: string): void {
+    this.logger.http(message)
+  }
 }
 
 export default WinstonLogger

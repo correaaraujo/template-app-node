@@ -1,9 +1,16 @@
+import { inject, injectable } from 'tsyringe'
 import ILogger from './protocols'
-import WinstonLogger from './winston/winston'
-const DEFAULT_LOGGER_IMPLEMENTATION: ILogger = new WinstonLogger()
 
+@injectable()
 class Logger implements ILogger {
-  public constructor (private readonly _logger: ILogger = DEFAULT_LOGGER_IMPLEMENTATION) {}
+  /**
+   *
+   * @param _logger - Dependency Injection with default state
+   */
+  public constructor (
+    @inject('Logger')
+    private readonly _logger: ILogger
+  ) {}
 
   /**
    *
@@ -36,9 +43,17 @@ class Logger implements ILogger {
   warn (message: string): void {
     this._logger.warn(message)
   }
+
+  /**
+   *
+   * @param message - The message string to be logged
+   */
+  http (message: string): void {
+    this._logger.http(message)
+  }
 }
 
 /**
  * [Singleton]
  */
-export default new Logger()
+export default Logger

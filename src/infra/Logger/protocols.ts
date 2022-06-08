@@ -6,6 +6,7 @@ interface ILogger {
   error: (message: string) => void
   info: (message: string) => void
   warn: (message: string) => void
+  http: (message: string) => void
 }
 
 export default ILogger
