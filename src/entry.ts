@@ -1,7 +1,12 @@
+
 import 'reflect-metadata'
 import './shared/container/RegisterDependencyInjections'
 import { Server as HttpServer } from 'node:http'
 import { container } from 'tsyringe'
+
+import Server from "../src/application/server";
+import "reflect-metadata"
+
 
 import Server from '@application/server'
 import Logger from '@infra/Logger/Logger'

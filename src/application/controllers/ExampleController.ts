@@ -1,4 +1,4 @@
-import { Express, Router } from "express";
+import { Router } from "express";
 import ExampleService from "../../domain/services/ExampleService";
 
 export default class ExampleController {
@@ -11,9 +11,9 @@ export default class ExampleController {
         this.init()
     }
 
-    init = () => {
+    init = () =>
         this.router.get("/", this.getAll);
-    }
+
 
     getAll = async (req, res, next) =>
         await this.service.getAll()

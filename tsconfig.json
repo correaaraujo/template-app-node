@@ -10,6 +10,7 @@
         "rootDir": ".",
         "sourceRoot": "./src",
         "sourceMap": true,
+
         "baseUrl": ".",
         "paths": {
             "@application/*": [
@@ -27,6 +28,10 @@
         },
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
+
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
+
     },
     "include": [
         "**/*.ts"
