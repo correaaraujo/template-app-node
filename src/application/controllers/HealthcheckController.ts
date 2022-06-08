@@ -12,5 +12,5 @@ export default class HealthCheckController {
   }
 
   healthcheck = (req, res, next): void =>
-    res.status(200).send()
+    res.status(200).send('ok')
 }

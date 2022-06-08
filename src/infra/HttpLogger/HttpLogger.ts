@@ -5,10 +5,9 @@ import Logger from '../Logger/Logger'
 const logger = container.resolve(Logger)
 
 /**
- *
- * @returns
+ * HttpLogger with Morgan Lib implementation
  */
-const HttpLogger = (): unknown =>
+const HttpLogger =
   morgan(function (tokens, req, res) {
     const msg = [
       tokens.method(req, res),
@@ -18,7 +17,6 @@ const HttpLogger = (): unknown =>
       tokens['response-time'](req, res), 'ms'
     ].join(' ')
     logger.http(msg)
-    console.log(msg)
     return null
   })
 

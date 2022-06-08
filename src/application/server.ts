@@ -4,12 +4,12 @@ import swaggerUi from 'swagger-ui-express'
 import 'dotenv/config'
 import swaggerAutogen from 'swagger-autogen'
 import { container } from 'tsyringe'
-import morgan from 'morgan'
 
 import HealthCheckController from './controllers/HealthcheckController'
 import * as swaggerDoc from '../../swagger.json'
 import Logger from '@infra/Logger/Logger'
 import ExitStatus from '@shared/enum/ExitStatus'
+import HttpLogger from '@infra/HttpLogger/HttpLogger'
 
 const logger = container.resolve(Logger)
 
@@ -25,20 +25,7 @@ export default class Server {
   }
 
   private readonly setupHttpLogger = (): void => {
-    this.app.use(
-      morgan(function (tokens, req, res) {
-        const msg = [
-          tokens.method(req, res),
-          tokens.url(req, res),
-          tokens.status(req, res),
-          tokens.res(req, res, 'content-length'), '-',
-          tokens['response-time'](req, res), 'ms'
-        ].join(' ')
-        logger.http(msg)
-        console.log(msg)
-        return null
-      })
-    )
+    this.app.use(HttpLogger)
   }
 
   private readonly setupErrorHandlerLogger = (): void => {
