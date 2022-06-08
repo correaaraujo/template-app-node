@@ -11,7 +11,7 @@
     "http"
   ],
   "paths": {
-    "/": {
+    "/api/v1/healthcheck/": {
       "get": {
         "description": "",
         "parameters": [],
@@ -22,15 +22,11 @@
         }
       }
     },
-    "/api/v1/healthcheck/": {
+    "/api/v1/examples/": {
       "get": {
         "description": "",
         "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
+        "responses": {}
       }
     }
   }

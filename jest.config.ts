@@ -6,5 +6,13 @@ export default {
   transform: {
     '.*\\.ts$': 'ts-jest'
   },
-  testMatch: ['**/?(*.)+(spec|test).[t]s?(x)']
+  testMatch: ['**/?(*.)+(spec|test).[t]s?(x)'],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: -10
+    }
+  }
 }
