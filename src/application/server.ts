@@ -1,18 +1,17 @@
-
 import express from 'express'
 import 'dotenv/config'
 import { Server as HttpServer } from 'node:http'
 import swaggerUi from 'swagger-ui-express'
-import { container } from 'tsyringe'
 import * as swaggerDoc from '../../swagger.json'
-import Logger from '@infra/Logger/Logger'
-import ExitStatus from '@shared/enum/ExitStatus'
-import HttpLogger from '@infra/HttpLogger/HttpLogger'
+import { Logger, HttpLogger } from '@infra/logger'
 import HealthCheckController from './controllers/HealthcheckController'
 import ExampleController from './controllers/ExampleController'
+import ExitStatus from '@shared/enum/ExitStatus'
+import { container } from 'tsyringe'
+
 const logger = container.resolve(Logger)
 
-export default class Server {
+class Server {
   app: express.Application
 
   constructor () {
@@ -54,15 +53,15 @@ export default class Server {
     const exitSignals: NodeJS.Signals[] = ['SIGINT', 'SIGTERM', 'SIGQUIT']
     exitSignals.forEach((signal: string) => {
       process.on(signal, () => {
-        // logger.info(`Closing server connections due an ${signal} command...`)
+        logger.info(`Closing server connections due an ${signal} command...`)
         // TODO: Close DB and other connections
         server.close((serverError) => {
           if (serverError) {
-            // logger.error('An unexpected error ocurred while trying to shut down...')
+            logger.error('An unexpected error ocurred while trying to shut down...')
             // logger.error(String(serverError))
             process.exit(ExitStatus.FAILURE)
           } else {
-            // logger.info('Server connections closed successfully!!!')
+            logger.info('Server connections closed successfully!!!')
             process.exit(ExitStatus.SUCCESS)
           }
         })
@@ -72,3 +71,5 @@ export default class Server {
 
   static bootstrap = (): Server => new Server()
 }
+
+export default Server

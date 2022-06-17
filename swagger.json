@@ -22,7 +22,11 @@
       "get": {
         "description": "",
         "parameters": [],
-        "responses": {}
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
       }
     }
   }

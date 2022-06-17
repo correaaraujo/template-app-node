@@ -16,13 +16,16 @@
                 "./src/application/*"
             ],
             "@domain/*": [
-                "./src/domain/*"
+                "src/core/domain/domain/*"
             ],
             "@infra/*": [
                 "./src/infra/*"
             ],
             "@shared/*": [
-                "./src/shared/*"
+                "src/shared/*"
+            ],
+            "@core/*": [
+                "src/core/*"
             ],
         },
         "experimentalDecorators": true,
@@ -30,7 +33,7 @@
     },
     "include": [
         "**/*.ts"
-    ],
+, "src/shared/type/api/json/ApiResponse.ts"    ],
     "exclude": [
         "node_modules",
         "dist",

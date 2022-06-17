@@ -1,32 +1,27 @@
 import winston from 'winston'
 import ILogger from './ILogger'
 
-export default class Logger implements ILogger {
-  private logger: winston.Logger
-  constructor() {
-    this._configure()
-  }
-
-  private _configure(): void {
-    this.logger = winston.createLogger({
-      transports: [
-        new winston.transports.Console({
-          level: 'debug',
-          handleExceptions: true,
-          format: winston.format.combine(
-            winston.format.timestamp({ format: 'HH:mm:ss:ms' }),
-            winston.format.colorize(),
-            winston.format.printf(
-              (info: winston.Logform.TransformableInfo) =>
-                `${String(info.timestamp)} ${info.level}: ${info.message}`
-            )
-            //  winston.format.simple(),
+export class Logger implements ILogger {
+  private readonly logger: winston.Logger = winston.createLogger({
+    transports: [
+      new winston.transports.Console({
+        level: 'debug',
+        handleExceptions: true,
+        format: winston.format.combine(
+          winston.format.timestamp({ format: 'HH:mm:ss:ms' }),
+          winston.format.colorize(),
+          winston.format.printf(
+            (info: winston.Logform.TransformableInfo) =>
+              `${String(info.timestamp)} ${info.level}: ${info.message}`
           )
-        })
-      ],
-      exitOnError: false
-    })
+          //  winston.format.simple(),
+        )
+      })
+    ],
+    exitOnError: false
+  })
 
+  constructor () {
     if (process.env.NODE_ENV === 'dev') {
       this.logger.add(
         new winston.transports.File({
@@ -49,26 +44,25 @@ export default class Logger implements ILogger {
           maxFiles: 5
         }))
     }
-    this.logger.info('logging started')
   }
 
-  debug(message: any): void {
+  debug (message: string): void {
     this.logger.debug(message)
   }
 
-  error(message: any): void {
+  error (message: string): void {
     this.logger.error(message)
   }
 
-  info(message: any): void {
+  info (message: string): void {
     this.logger.info(message)
   }
 
-  warn(message: any): void {
+  warn (message: string): void {
     this.logger.warn(message)
   }
 
-  http(message: any): void {
+  http (message: string): void {
     this.logger.http(message)
   }
 }

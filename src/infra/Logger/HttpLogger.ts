@@ -1,13 +1,13 @@
 import morgan from 'morgan'
 import { container } from 'tsyringe'
-import Logger from '../Logger/Logger'
+import { Logger } from './Logger'
 
 const logger = container.resolve(Logger)
 
 /**
  * HttpLogger with Morgan Lib implementation
  */
-const HttpLogger =
+export const HttpLogger =
   morgan(function (tokens, req, res) {
     const msg = [
       tokens.method(req, res),
@@ -19,5 +19,3 @@ const HttpLogger =
     logger.http(msg)
     return null
   })
-
-export default HttpLogger
